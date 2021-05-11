@@ -1,3 +1,9 @@
+# There are many ways to caculate pi
+# This is one of the more simpler algorithms
+# It involves iteratively calculating the series proposed by Leibniz
+# This series is as follows: 4/1 - 4/3 + 4/5 - 4/7 + 4/9 ....
+# The JIT from Numba was used to speed up some of the calculations
+
 import typing
 from numba import jit
 

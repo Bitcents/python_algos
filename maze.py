@@ -11,10 +11,10 @@ class Cell(str, Enum):
     GOAL = "G"
     PATH = "*"
 
-
 class MazeLocation(NamedTuple):
     row: int
     column: int
+
 
 class Maze:
     def __init__(self, rows: int = 10, columns: int = 10, sparseness: float = 0.2, start: MazeLocation = MazeLocation(0, 0), goal: MazeLocation = MazeLocation(9, 9)) -> None:
@@ -26,7 +26,7 @@ class Maze:
         self._goal: MazeLocation = goal
         # fill the maze with empty cells
         # using list composition to get this all in one line
-        self._grid: List[List[Cell]] = [[Cell.EMPTY for c in range(columns)] for r in range(rows)]
+        self._grid: List[List[Cell]] = [[Cell.EMPTY for c in range(self._columns)] for r in range(self._rows)]
         # then we randomly fill the grid, according to the sparseness factor
         self._randomly_fill(rows, columns, sparseness)
         self._grid[self._start.row][self._start.column] = Cell.START
@@ -43,7 +43,29 @@ class Maze:
                     self._grid[r][c] = Cell.BLOCKED
     
 
-    def __repr__(self):
+    def goal_test(self, ml: MazeLocation) -> bool:
+        return ml == self._goal
+
+    # functions for maze navigation
+    # successor returns a list of neighbouring maze locations
+    # that can be reached from the current maze location
+    def succesor(self, ml: MazeLocation) -> List[MazeLocation]:
+        locations: List[MazeLocation] = []
+        # check the grid location immediately above
+        if ml.row + 1 >= 0 and self._grid[ml.row + 1][ml.column] != Cell.BLOCKED:
+            locations.append(MazeLocation(ml.row + 1, ml.column))
+        # check the grid location immediately below
+        if ml.row - 1 >= 0 and self._grid[ml.row - 1][ml.column] != Cell.BLOCKED:
+            locations.append(MazeLocation(ml.row - 1, ml.column))
+        # check the grid location immediately to the right
+        if ml.column + 1 >= 0 and self._grid[ml.row][ml.column + 1] != Cell.BLOCKED:
+            locations.append(MazeLocation(ml.row, ml.column + 1))
+        # check the grid location immediately to the left
+        if ml.column - 1 >= 0 and self._grid[ml.row][ml.column - 1] != Cell.BLOCKED:
+            locations.append(MazeLocation(ml.row, ml.column - 1))
+        return locations
+
+    def __repr__(self): 
         output: str = ""
         for row in self._grid:
             output += "".join([c.value for c in row]) + "\n"
@@ -60,3 +82,7 @@ class Maze:
 if __name__=='__main__':
     test_maze = Maze()
     print(test_maze)
+    test_successors = test_maze.succesor(MazeLocation(2,1))
+    if len(test_successors) != 0:
+        for location in test_successors:
+            print(location.row, location.column)

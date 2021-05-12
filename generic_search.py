@@ -62,10 +62,10 @@ class Stack(Generic[T]):
 # We will define the node class here
 class Node(Generic[T]):
     def __init__(self, state: T, parent: Optional[Node], cost: float=0.0, heuristic: float=0.0) -> None:
-        self._state: T = state
-        self._cost: float = cost
-        self._heuristic: float = heuristic
-        self._parent: Optional[Node] = parent
+        self.state: T = state
+        self.cost: float = cost
+        self.heuristic: float = heuristic
+        self.parent: Optional[Node] = parent
 
     def __lt__(self, other: Node) -> bool:
         return(self._cost + self._heuristic < (other._cost + other._heuristic))
@@ -98,7 +98,44 @@ def linear_contains(iterable: Iterable[T], key: T) -> bool:
     return False
 
 
+def dfs(initial: T, goal_test: Callable[[T], bool], successors:+ Callable[[T], List[T]]) -> Optional[Node[T]]:
+    # We store discovred but unexplored nodes to the unexplored stack
+    frontier: Stack[Node[T]] = Stack()
+    # The initial node will always be the starting point of the dfs
+    # We therefore push the initial node into the stack
+    frontier.push(Node(initial, None))
+    # We alse need to store explored nodes so we do not move around in loops
+    explored: Set[T] = {initial}
+    # Keep going while there are still nodes inside unexplored:
+    while not frontier.empty:
+        current_node = frontier.pop()
+        current_state = current_node.state
+        if goal_test(current_state):
+            return current_node
+        # check for paths from current node
+        for child in successors(current_state):
+            # if the child is in explored, ignore and continue
+            if child in explored:
+                continue
+            else:
+                explored.add(child)
+                frontier.push(Node(child, current_node))
 
+# We want to know the path that needs to be taken
+# from the starting node to reach the goal node
+def node_to_path(node: Node[T]) -> List:
+    # create a list of nodes
+    # the node passed into the function muset be on the path
+    # hence the list has the node as one of its elements
+    path: List[T] = [node.state]
+    # loop until the node has no parent
+    # since the startint node has no parent
+    # the loop will stop there
+    while node.parent != None:
+        node = node.parent
+        path.append(node.state)
+    path.reverse()
+    return path
 
 # perform some tests and make some comparisons
 

@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List, NamedTuple, Callable, Optional
 import random
 from math import sqrt
-#from generic_search import dfs, bfs, node_to_path, astar, Node
+from generic_search import dfs, node_to_path,  Node
 
 class Cell(str, Enum):
     EMPTY = " "
@@ -49,28 +49,39 @@ class Maze:
     # functions for maze navigation
     # successor returns a list of neighbouring maze locations
     # that can be reached from the current maze location
-    def succesor(self, ml: MazeLocation) -> List[MazeLocation]:
+    def successors(self, ml: MazeLocation) -> List[MazeLocation]:
         locations: List[MazeLocation] = []
         # check the grid location immediately above
-        if ml.row + 1 >= 0 and self._grid[ml.row + 1][ml.column] != Cell.BLOCKED:
+        if ml.row + 1 < self._rows and self._grid[ml.row + 1][ml.column] != Cell.BLOCKED:
             locations.append(MazeLocation(ml.row + 1, ml.column))
         # check the grid location immediately below
         if ml.row - 1 >= 0 and self._grid[ml.row - 1][ml.column] != Cell.BLOCKED:
             locations.append(MazeLocation(ml.row - 1, ml.column))
         # check the grid location immediately to the right
-        if ml.column + 1 >= 0 and self._grid[ml.row][ml.column + 1] != Cell.BLOCKED:
+        if ml.column + 1 < self._columns and self._grid[ml.row][ml.column + 1] != Cell.BLOCKED:
             locations.append(MazeLocation(ml.row, ml.column + 1))
         # check the grid location immediately to the left
         if ml.column - 1 >= 0 and self._grid[ml.row][ml.column - 1] != Cell.BLOCKED:
             locations.append(MazeLocation(ml.row, ml.column - 1))
         return locations
 
+    # function to mark the path from start
+    # to the finish of the maze
+    def mark(self, path: List[MazeLocation]) -> None:
+        for location in path:
+            self._grid[location.row][location.column] = Cell.PATH
+        self._grid[self._start.row][self._start.column] = Cell.START
+        self._grid[self._goal.row][self._goal.column] = Cell.GOAL
+    
+    
     def __repr__(self): 
         output: str = ""
         for row in self._grid:
             output += "".join([c.value for c in row]) + "\n"
         return output
 
+    
+                                                
 
 
 # perform some tests here
@@ -82,7 +93,10 @@ class Maze:
 if __name__=='__main__':
     test_maze = Maze()
     print(test_maze)
-    test_successors = test_maze.succesor(MazeLocation(2,1))
-    if len(test_successors) != 0:
-        for location in test_successors:
-            print(location.row, location.column)
+    solution: Optional[Node[MazeLocation]] = dfs(test_maze._start, test_maze.goal_test, test_maze.successors)
+    if solution is None:
+        print("no valid path found")
+    else:
+        path = node_to_path(solution)
+        test_maze.mark(path)
+        print(test_maze)

@@ -2,7 +2,8 @@ from enum import Enum
 from typing import List, NamedTuple, Callable, Optional
 import random
 from math import sqrt
-from generic_search import dfs, bfs, node_to_path,  Node
+from generic_search import dfs, bfs, astar, node_to_path, Node
+from timeit import default_timer as timer
 
 class Cell(str, Enum):
     EMPTY = " "
@@ -114,24 +115,47 @@ def manhattan_distance(goal: MazeLocation) -> Callable[[MazeLocation], float]:
 # not visited by the dfs
 if __name__=='__main__':
     m = Maze(10, 10)
-    print(m)
+
+    # depth-first search
+    stime1 = timer()
     solution: Optional[Node[MazeLocation]] = dfs(m._start, m.goal_test, m.successors)
+    etime1 = timer()
     if solution is None:
-        print("no valid path found")
+        print("No solution found using depth-first search!")
     else:
         path = node_to_path(solution)
         m.mark(path)
         print(m)
         m.clear(path)
+    print(f'time taken: {etime1 - stime1}')
+    
+    print("\n" + 30*"-" + "\n")
+    
+    # breadth-first search
+    stime2 = timer()
+    solution2: Optional[Node[MazeLocation]] = bfs(m._start, m.goal_test,m.successors)
+    etime2 = timer()
+    if solution2 is None:
+        print("No solution found using breadth-first search!")
+    else:
+        path2: List[MazeLocation] = node_to_path(solution2)
+        m.mark(path2)
+        print(m)
+        m.clear(path2)
+    print(f'time taken: {etime2 - stime2}')
 
+    print("\n" + 30*"-" + "\n")
 
-print("\n" + 30*"-" + "\n")
-
-solution2: Optional[Node[MazeLocation]] = bfs(m._start, m.goal_test,m.successors)
-if solution2 is None:
-    print("No solution found using breadth-first search!")
-else:
-    path2: List[MazeLocation] = node_to_path(solution2)
-    m.mark(path2)
-    print(m)
-    m.clear(path2)
+    # a-star algorithm
+    distance: Callable[[MazeLocation], float] = euclidian_distance(m._goal)
+    stime3 = timer()
+    solution3: Optional[Node[MazeLocation]] = astar(m._start, m.goal_test, m.successors, distance)
+    etime3 = timer()
+    if solution3 is None:
+        print('No solution found using astar!')
+    else:
+        path3 = node_to_path(solution3)
+        m.mark(path3)
+        print(m)
+        m.clear(path3) 
+    print(f'time taken: {etime3 - stime3}')

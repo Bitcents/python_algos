@@ -86,9 +86,14 @@ class Node(Generic[T]):
         self.parent: Optional[Node] = parent
 
     def __lt__(self, other: Node) -> bool:
-        return(self._cost + self._heuristic < (other._cost + other._heuristic))
+        return(self.cost + self.heuristic < (other.cost + other.heuristic))
     
 
+# The priority queue abstract data structure is essential 
+# to the functioning of the A* algorithm 
+# we implement a priority queue using the heappop and heappush methods
+# from the heapq module
+# the structure has a similar structure to the Queue and Stack classes
 class PriorityQueue(Generic[T]):
     def __init__(self) -> None:
         self._container: List[T] = []
@@ -105,7 +110,8 @@ class PriorityQueue(Generic[T]):
 
     def __repr__(self) -> None:
         return repr(self._container)
-    
+
+
 # Binary search depends on the sequence being sorted
 # It will not work on unsorted lists, for example
 def binary_contains(sequence: Sequence[C], key: C) -> bool:
@@ -130,6 +136,8 @@ def linear_contains(iterable: Iterable[T], key: T) -> bool:
             return True
     
     return False
+
+
 
 
 def dfs(initial: T, goal_test: Callable[[T], bool], successors:+ Callable[[T], List[T]]) -> Optional[Node[T]]:
@@ -176,6 +184,24 @@ def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], Li
             else:
                 explored.add(child)
                 frontier.push(Node(child, current_node))
+
+# one of the better search algorithms out there
+# the a star algorithm augments the typical breadth-first search
+def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional(Node[T]):
+    frontier: PriorityQueue[Node[T]] = PriorityQueue()
+    frontier.push(Node(initial, None, 0.0, heuristic(initial)))
+    explored: Dict[T, float] = {initial : 0.0}
+
+    while not frontier.is_empty:
+        current_node = frontier.pop()
+        current_state = current_node.state
+        if goal_test(current_state):
+            return current_node
+        for child in successors(current_state):
+            new_cost: float = current_node.cost + 1
+            if child not in explored or explored[child] > new_cost:
+                explored[child] = new_cost
+                frontier.push(Node(child, current_node, new_cost, heuristic(child) ))
     
 
 

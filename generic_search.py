@@ -187,6 +187,7 @@ def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], Li
 
 # one of the better search algorithms out there
 # the a star algorithm augments the typical breadth-first search
+
 def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional(Node[T]):
     frontier: PriorityQueue[Node[T]] = PriorityQueue()
     frontier.push(Node(initial, None, 0.0, heuristic(initial)))

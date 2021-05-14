@@ -56,7 +56,25 @@ class Stack(Generic[T]):
             output_str = "stack is empty"
         return output_str
 
+# breadt-frst search employs the same algorithm as depth-first search
+# the only difference being the data structure used in each case
+# while dfs uses a stack bfs uses a queue 
+class Queue(Generic[T]):
+    def __init__(self) -> None:
+        self._container: Deque[T] = Deque()
+    
+    @property
+    def is_empty(self) -> bool:
+        return not self._container
+    
+    def push(self, item: T) -> None:
+        self._container.append(item)
+    
+    def pop(self) -> T:
+        return self._container.popleft()
 
+    def __repr__(self) -> str:
+        return repr(self._container)
 
 # Dfs and bfs is usually performed on a collection of nodes
 # We will define the node class here
@@ -71,7 +89,23 @@ class Node(Generic[T]):
         return(self._cost + self._heuristic < (other._cost + other._heuristic))
     
 
+class PriorityQueue(Generic[T]):
+    def __init__(self) -> None:
+        self._container: List[T] = []
+    
+    @property
+    def is_empty(self) -> bool:
+        return not self._container
+    
+    def push(self, item: T) -> None:
+        heappush(self._container, item)
+    
+    def pop(self) -> T:
+        return heappop(self._container)
 
+    def __repr__(self) -> None:
+        return repr(self._container)
+    
 # Binary search depends on the sequence being sorted
 # It will not work on unsorted lists, for example
 def binary_contains(sequence: Sequence[C], key: C) -> bool:
@@ -120,6 +154,30 @@ def dfs(initial: T, goal_test: Callable[[T], bool], successors:+ Callable[[T], L
             else:
                 explored.add(child)
                 frontier.push(Node(child, current_node))
+
+
+def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional(Node[T]):
+    # make a frontier queue
+    frontier: Queue[Node[T]] = Queue()
+    # and push the initial node into it
+    frontier.push(Node(initial, None))
+    # create a set of explored T
+    explored: Set[T] = {initial}
+    # continue searching until there are nodes in the frontier
+    # or the goal is found 
+    while not frontier.is_empty:
+        current_node: Node[T] = frontier.pop()
+        current_state = current_node.state
+        if goal_test(current_state):
+            return current_node
+        for child in successors(current_state):
+            if child in explored:
+                continue
+            else:
+                explored.add(child)
+                frontier.push(Node(child, current_node))
+    
+
 
 # We want to know the path that needs to be taken
 # from the starting node to reach the goal node

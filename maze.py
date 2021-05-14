@@ -2,11 +2,11 @@ from enum import Enum
 from typing import List, NamedTuple, Callable, Optional
 import random
 from math import sqrt
-from generic_search import dfs, node_to_path,  Node
+from generic_search import dfs, bfs, node_to_path,  Node
 
 class Cell(str, Enum):
     EMPTY = " "
-    BLOCKED = "X"
+    BLOCKED = "■"
     START = "S"
     GOAL = "G"
     PATH = "*"
@@ -73,14 +73,36 @@ class Maze:
         self._grid[self._start.row][self._start.column] = Cell.START
         self._grid[self._goal.row][self._goal.column] = Cell.GOAL
     
+    def clear(self, path: List[MazeLocation]) -> None:
+        for location in path:
+            self._grid[location.row][location.column] = Cell.EMPTY
+        self._grid[self._start.row][self._start.column] = Cell.START
+        self._grid[self._goal.row][self._goal.column] = Cell.GOAL
     
     def __repr__(self): 
         output: str = ""
         for row in self._grid:
-            output += "".join([c.value for c in row]) + "\n"
+            output += " ".join([c.value for c in row]) + "\n"
         return output
 
-    
+# The A* algorithm requires a heuristic 
+# The heuristic is used to judge whether the algorithm 
+# is getting closer to the goal
+# one heuristic usually used is the euclidian distance
+def euclidian_distance(goal: MazeLocation) -> Callable[[MazeLocation], float]:
+    def distance(ml: MazeLocation) ->float:
+        xdist: int = ml.column - goal.column
+        ydist: int = ml.row - goal.row
+        temp = (xdist * xdist) + (ydist * ydist)
+        return sqrt(temp)
+    return distance
+# the manhattan distance is also used as an heuristic sometimes
+def manhattan_distance(goal: MazeLocation) -> Callable[[MazeLocation], float]:
+    def distance(ml: MazeLocation):
+        xdist: int = abs(ml.column - goal.column)
+        ydist: int = abs(ml.row - goal.row)
+        return (xdist + ydist)
+    return distance
                                                 
 
 
@@ -91,12 +113,25 @@ class Maze:
 # or use a depth-first search to 'create paths' and then block out the paths
 # not visited by the dfs
 if __name__=='__main__':
-    test_maze = Maze()
-    print(test_maze)
-    solution: Optional[Node[MazeLocation]] = dfs(test_maze._start, test_maze.goal_test, test_maze.successors)
+    m = Maze(10, 10)
+    print(m)
+    solution: Optional[Node[MazeLocation]] = dfs(m._start, m.goal_test, m.successors)
     if solution is None:
         print("no valid path found")
     else:
         path = node_to_path(solution)
-        test_maze.mark(path)
-        print(test_maze)
+        m.mark(path)
+        print(m)
+        m.clear(path)
+
+
+print("\n" + 30*"-" + "\n")
+
+solution2: Optional[Node[MazeLocation]] = bfs(m._start, m.goal_test,m.successors)
+if solution2 is None:
+    print("No solution found using breadth-first search!")
+else:
+    path2: List[MazeLocation] = node_to_path(solution2)
+    m.mark(path2)
+    print(m)
+    m.clear(path2)

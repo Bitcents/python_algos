@@ -164,7 +164,7 @@ def dfs(initial: T, goal_test: Callable[[T], bool], successors:+ Callable[[T], L
                 frontier.push(Node(child, current_node))
 
 
-def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional(Node[T]):
+def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional[Node[T]]:
     # make a frontier queue
     frontier: Queue[Node[T]] = Queue()
     # and push the initial node into it
@@ -188,7 +188,7 @@ def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], Li
 # one of the better search algorithms out there
 # the a star algorithm augments the typical breadth-first search
 
-def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional(Node[T]):
+def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional[Node[T]]:
     frontier: PriorityQueue[Node[T]] = PriorityQueue()
     frontier.push(Node(initial, None, 0.0, heuristic(initial)))
     explored: Dict[T, float] = {initial : 0.0}

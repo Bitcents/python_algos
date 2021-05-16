@@ -31,3 +31,26 @@ class CSP(Generic[V, D]):
                 raise LookupError("Variable in constraint not present in CSP")
             else:
                 self.constraints[variable].append(constraint)
+
+    def is_consistent(self, variable: V, assignment: Dict[V, D]) -> bool:
+        for constraint in self.constraints[variable]:
+            if not constraint.satisfied(assignment):
+                return False
+        return True
+
+    def backtracking_search(self, assignment: Dict[V, D]= {}) -> Optional[Dict[V, D]]:
+        # return if we found an assignment for every variable in the CSP
+        if len(self.variables) == len(assignment):
+            return assignment
+        
+        unassigned: List[V] = [v for v in self.variables if v not in assignment]
+        first: V = unassigned[0]
+        for value in self.domains[first]:
+            local_assignment = assignment.copy()
+            local_assignment[first] = value
+            if self.is_consistent(first, local_assignment):
+                result: Optional[Dict[V, D]] = self.backtracking_search(local_assignment)
+                if result is not None:
+                    return result
+        return None
+            

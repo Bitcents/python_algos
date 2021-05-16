@@ -1,4 +1,4 @@
-from typing import Generic, Optional, TypeVar, List, Set, Callable, Deque, Dict
+from typing import AsyncIterable, Generic, Optional, TypeVar, List, Set, Callable, Deque, Dict
 from abc import ABC, abstractmethod
 from typing_extensions import Protocol
 from heapq import heappush, heappop
@@ -115,11 +115,33 @@ class CSP(Generic[V, D]):
             else:
                 self.constraints[variable].append(constraint)
 
-                
+    def is_consistent(self, variable: V, assignment: Dict[V, D]) -> bool:
+        for constraint in self.constraints[variable]:
+            if not constraint.satisfied(assignment):
+                return False
+        return True
+
+    def backtracking_search(self, assignment: Dict[V, D] = {}) -> Optional[Dict[V, D]]:
+        # base case, when there is on assignment for every variable
+        if len(self.variables) == len(assignment):
+            return assignment
+        # create a list of unassigned variables
+        # unassigned variables are variables in the CSP which still do not have a value and therefore have not been tested
+        unassigned: List[V] = [v for v in self.variables if v not in assignment]
+        first: V = unassigned[0]
+        for value in self.domains[first]:
+            local_assignment = assignment.copy()
+            local_assignment[first] = value
+            if self.is_consistent(first, local_assignment):
+                result: Optional[Dict[V, D]] = self.backtracking_search(local_assignment)
+                if result is not None:
+                    return result
+        return None
+
 
 # methods related to searching graphs involving nodes
 
-def dfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional(Node[T]):
+def dfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional[Node[T]]:
     # initlalize stack and populate with initial node
     frontier: Stack[Node[T]] = Stack()
     frontier.push(Node(initial, None))
@@ -140,7 +162,7 @@ def dfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], Li
                 explored.add(child)
 
 
-def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional(Node[T]):
+def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional[Node[T]]:
     # intialize queue and populate with initial node
     frontier: Queue[Node[T]] = Queue()
     frontier.push(Node[T], None)
@@ -161,7 +183,7 @@ def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], Li
                 explored.add(child)
 
 
-def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional(Node[T]):
+def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional[Node[T]]:
     frontier: PriorityQueue[Node[T]] = PriorityQueue()
     frontier.push(Node[initial, None, 0.0, heuristic(initial)])
     explored: Dict[T, float] = {initial : 0.0}

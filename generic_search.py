@@ -15,7 +15,7 @@ class Comparable(Protocol):
     def __lt__(self: C, other: C) -> bool:
         ...
     def __gt__(self: C, other: C) -> bool:
-        return self < other and self != other
+        return self > other and self != other
     def __le__(self: C, other: C) -> bool:
         return self < other or self == other
     def __ge__(self: C, other: C) -> bool:

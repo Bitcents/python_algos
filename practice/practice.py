@@ -1,10 +1,15 @@
 from typing import Generic, Optional, TypeVar, List, Set, Callable, Deque, Dict
+from abc import ABC, abstractmethod
 from typing_extensions import Protocol
 from heapq import heappush, heappop
 from __future__ import annotations
-T = TypeVar('T')
 
-# check generic_search.py
+T = TypeVar('T')
+V = TypeVar('V')
+D = TypeVar('D')
+# data structure classes
+
+# refer to node.py
 class Node(Generic[T]):
     def __init__(self, state: T, parent: Optional[Node[T]], cost: float, heuristic: float) -> None:
         self.state = state
@@ -18,7 +23,6 @@ class Node(Generic[T]):
 # check stack.py
 class Stack(Generic[T]):
     def __init__(self) -> None:
-        # we will use Python lists to implement a stack
         self._container: List[T] = []
     
     @property
@@ -82,6 +86,38 @@ class Node(Generic[T]):
     def __lt__(self, other: Node) -> bool:
         return (self.cost + self.heuristic) < (other.cost + other.heuristic)
 
+
+# classes related to constraint-satisfactoin problems
+# refer to csp.py
+
+class Constraint(Generic[V, D], ABC):
+    def __init__(self, variables: List[V]):
+        self.variables = variables
+    
+    @abstractmethod
+    def satisfied(self, assignment: Dict[V, D]):
+        ...
+
+class CSP(Generic[V, D]):
+    def __init__(self, variables: List[V], domains: Dict[V, List[D]]) -> None:
+        self.variables: List[V] = variables
+        self.domains: Dict[V, List[D]] = domains
+        self.constraints: Dict[V, List[Constraint[V, D]]] = {}
+        for variable in self.variables:
+            self.constraint[variable] = []
+            if variable not in self.domains:
+                raise LookupError('Each variable must have an associated domain')
+    
+    def add_constraint(self, constraint: Constraint[V, D]):
+        for variable in constraint.variables:
+            if variable not in self.variables:
+                raise LookupError('Constraint has variable not in CSP')
+            else:
+                self.constraints[variable].append(constraint)
+
+                
+
+# methods related to searching graphs involving nodes
 
 def dfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional(Node[T]):
     # initlalize stack and populate with initial node

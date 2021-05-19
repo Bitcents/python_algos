@@ -1,6 +1,6 @@
 from typing import List
 from timeit import default_timer as timer
-
+import random
 # the simplest of sorting algorithms
 # these implementations were inspired by psuedocode found in wikipedia
 # for explanations, head to the corresponding wikipedia page
@@ -22,7 +22,6 @@ def insertion_sort(numbers: List[int]) -> None:
             j -= 1
         i += 1
         
-    
 
 def bubble_sort(numbers: List[int]) -> None:
     n = len(numbers)
@@ -37,21 +36,37 @@ def bubble_sort(numbers: List[int]) -> None:
         flag = not newn <= 1
 
 
+def quick_sort(numbers: List[int], low: int, high: int) -> None:
+    if low < high:
+        i = low
+        pivot = numbers[high-1]
+        for j in range(low, high):
+            if numbers[j] < pivot:
+                numbers[j], numbers[i] = numbers[i], numbers[j]
+                i += 1
+        numbers[i], numbers[high-1] = numbers[high-1], numbers[i]
 
+        # recursive call
+        quick_sort(numbers,low, i)
+        quick_sort(numbers, i + 1, high)
+
+def create_random_integers(lower: int, upper: int, no_of_ints) -> List[int]:
+    arr = []
+    for _ in range(no_of_ints):
+        arr.append(random.randint(lower, upper))
+    return arr
 
 if __name__=='__main__':
-    test_numbers = [23,65,2,6,4,1,1,2,10,7,12,13,18,21,24,17,29,42,51]
-    
+    test_numbers = create_random_integers(0,50,200)
+    test_numbers_copy = test_numbers.copy()
     s = timer()
-    bubble_sort(test_numbers)
+    quick_sort(test_numbers, 0, len(test_numbers))
     e = timer()
     difference1 = e - s
     print(test_numbers)
 
-    test_numbers = [23,65,2,6,4,1,1,2,10,7,12,13,18,21,24,17,29,42,51]
-
     s = timer()
-    insertion_sort(test_numbers)
+    insertion_sort(test_numbers_copy)
     e = timer()
     difference2 = e - s
     print(test_numbers)

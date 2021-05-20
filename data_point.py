@@ -13,7 +13,7 @@ class DataPoint:
     
     def distance(self, other: DataPoint) -> float:
         combined: Iterator[Tuple[float, float]] = zip(self.dimensions, other.dimensions)
-        differences: List[float] = [(x - y) for x,y in combined]
+        differences: List[float] = [(x - y) ** 2 for x,y in combined]
         return sqrt(sum(differences))
     
     def __eq__(self, other: object) -> bool:
@@ -24,4 +24,4 @@ class DataPoint:
     def __repr__(self) -> str:
         return self._originals.__repr__()
 
-        
+

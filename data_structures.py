@@ -1,5 +1,6 @@
-from typing import Generic, TypeVar, List, Deque, Set
+from typing import Generic, TypeVar, List, Deque, Set, Tuple, Iterable, Iterator
 from heapq import heappop, heappush
+from math import sqrt
 from __future__ import annotations
 
 
@@ -49,3 +50,29 @@ class PriorityQueue(Generic[T]):
     def __repr__(self):
         return repr(self._container)
 
+
+class DataPoint:
+    def __init__(self, initial: Iterable[float]) -> None:
+        self._originals: Tuple[float, ...] = tuple(initial)
+        self.dimensions: Tuple[float, ...] = tuple(initial)
+
+    @property
+    def num_dimensions(self):   
+        return len(self.dimensions)
+    
+    def distance(self, other: DataPoint) -> float:
+        if self.num_dimensions != other.num_dimensions:
+            raise ValueError('points do not have the same dimensions')
+        else:
+            combined: Iterator[Tuple[float, float]] = zip(self, other)
+            differences:  List[float] = [(x - y) ** 2 for x,y in combined]
+            return sqrt(sum(differences))
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(self, other):
+            return NotImplemented
+        else:
+            return self.dimensions == other.dimensions
+
+    def __repr__(self) -> str:
+        return self.dimensions.__repr__()

@@ -1,8 +1,10 @@
-from typing import AsyncIterable, Generic, Optional, TypeVar, List, Set, Callable, Deque, Dict
+from __future__ import annotations
+from typing import AsyncIterable, Generic, Optional, TypeVar, List, Set, Callable, Deque, Dict, Sequence
 from abc import ABC, abstractmethod
 from typing_extensions import Protocol
+from math import sqrt
 from heapq import heappush, heappop
-from __future__ import annotations
+
 
 T = TypeVar('T')
 V = TypeVar('V')
@@ -197,4 +199,22 @@ def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], 
             if not child in explored or explored[child] > new_cost:
                 explored[child] = new_cost
                 frontier.push(Node(child, current_node, new_cost, heuristic(child))) 
+
+
+def calculate_pstdev(numbers: Sequence[float], mean: float=None) -> float:
+    if mean == None:
+        mean: float = sum([num for num in numbers]) / len(numbers)
+    else:
+        mean = mean
+    total: float = 0
+    for num in numbers:
+       total += (num - mean) ** 2
+    return sqrt(total/len(numbers)) 
+
+def zscores(original: Sequence[float]) -> List[float]:
+    mean: float = sum([num for num in original]) / len(original)
+    pstdev: float = calculate_pstdev(original, mean)
+    return [(x - mean)/pstdev for x in original]
+
+
 
